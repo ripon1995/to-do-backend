@@ -7,7 +7,7 @@ env = environ.Env()
 environ.Env().read_env()
 DEBUG = True
 SECRET_KEY = os.environ['SECRET_KEY']
-ALLOWED_HOSTS = ['todobackend-vidr.onrender.com']
+ALLOWED_HOSTS = ['todobackend-x6vk.onrender.com']
 DATABASES = {
     'default': dj_database_url.parse(env('DATABASE_URL'))
 }
