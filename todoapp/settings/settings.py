@@ -1,15 +1,6 @@
 from pathlib import Path
-import dj_database_url
-import environ
-import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-env = environ.Env()
-environ.Env().read_env()
-DEBUG = True
-SECRET_KEY = 'django-insecure-^))%5(p=50!u03t6qu0fjryj94gbh2g3&s=sm^j6po(mzq-%qi'
-ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -52,23 +43,7 @@ TEMPLATES = [
     },
 ]
 
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'todo',
-#         'USER': 'postgres',
-#         'PASSWORD': 'rootless',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#     }
-# }
-
 WSGI_APPLICATION = 'todoapp.wsgi.application'
-
-DATABASES = {
-    'default': dj_database_url.parse(env('DATABASE_URL'))
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
