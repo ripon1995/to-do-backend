@@ -5,7 +5,7 @@ import os
 
 env = environ.Env()
 environ.Env().read_env()
-DEBUG = False
+DEBUG = True
 SECRET_KEY = os.environ['SECRET_KEY']
 ALLOWED_HOSTS = ['todobackend-vidr.onrender.com']
 DATABASES = {
