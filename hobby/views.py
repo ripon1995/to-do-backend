@@ -6,7 +6,6 @@ from hobby.serializers import HobbySerializer
 from django.http import JsonResponse
 
 
-# Create your views here.
 @csrf_exempt
 def hobby_views(request):
     if request.method == 'GET':
