@@ -1,7 +1,7 @@
+from .settings import *
 
-SECRET_KEY = 'django-insecure-^))%5(p=50!u03t6qu0fjryj94gbh2g3&s=sm^j6po(mzq-%qi'
 DEBUG = True
-ALLOWED_HOSTS = []
+SECRET_KEY = 'django-insecure-^))%5(p=50!u03t6qu0fjryj94gbh2g3&s=sm^j6po(mzq-%qi'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
