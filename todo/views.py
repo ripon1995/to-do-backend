@@ -15,7 +15,6 @@ def to_do_list(request):
         return JsonResponse(serializer.data, safe=False)
 
     if request.method == 'POST':
-        print("Inside post")
         data = JSONParser().parse(request)
         serializer = ToDoSerializer(data=data)
         if serializer.is_valid():
