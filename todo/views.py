@@ -22,3 +22,13 @@ class ToDoList(generics.ListCreateAPIView):
             return JsonResponse(custom_response(serializer.data))
 
         return JsonResponse(custom_response(serializer.errors))
+
+
+class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ToDo.objects.all()
+    serializer_class = ToDoSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        data = self.get_object()
+        serializer = self.get_serializer(data)
+        return JsonResponse(custom_response(serializer.data))
