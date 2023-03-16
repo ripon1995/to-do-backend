@@ -1,25 +1,24 @@
 from rest_framework.parsers import JSONParser
-from django.views.decorators.csrf import csrf_exempt
-
+from rest_framework import generics
 from todo.custom_response import custom_response
 from todo.models import ToDo
 from todo.serializers import ToDoSerializer
 from django.http import JsonResponse
 
 
-# Create your views here.
-@csrf_exempt
-def to_do_list(request):
-    if request.method == 'GET':
-        to_do_list_data = ToDo.objects.all()
-        serializer = ToDoSerializer(to_do_list_data, many=True)
-        return JsonResponse(custom_response(serializer.data), safe=False, )
+class ToDoList(generics.ListCreateAPIView):
+    queryset = ToDo.objects.all()
 
-    if request.method == 'POST':
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = ToDoSerializer(queryset, many=True)
+        return JsonResponse(custom_response(serializer.data))
+
+    def create(self, request, *args, **kwargs):
         data = JSONParser().parse(request)
         serializer = ToDoSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(custom_response(serializer.data), status=201)
+            return JsonResponse(custom_response(serializer.data))
 
-        return JsonResponse(serializer.errors, status=400)
+        return JsonResponse(custom_response(serializer.errors))
