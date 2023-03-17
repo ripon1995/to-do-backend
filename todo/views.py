@@ -46,10 +46,27 @@ class ToDoTitleListView(generics.ListAPIView):
     serializer_class = ToDoSerializer
 
     def get_queryset(self):
-        queryset = ToDo.objects.all().values_list('title', flat=True)
+        todos = ToDo.objects.all()
+        queryset = todos.values_list('id', 'title')
         return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         titles = list(queryset)
+        titles = [{'id': item[0], 'title': item[1]} for item in titles]
+        return JsonResponse(custom_response(titles))
+
+
+class ToDoCompletedTitleListView(generics.ListAPIView):
+    serializer_class = ToDoSerializer
+
+    def get_queryset(self):
+        completed_queryset = ToDo.objects.all().filter(completed=True)
+        queryset = completed_queryset.values_list('id', 'title', 'completed')
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        titles = list(queryset)
+        titles = [{'id': item[0], 'title': item[1], 'completed': item[2]} for item in titles]
         return JsonResponse(custom_response(titles))
