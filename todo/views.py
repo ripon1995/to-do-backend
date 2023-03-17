@@ -31,4 +31,12 @@ class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
     def retrieve(self, request, *args, **kwargs):
         data = self.get_object()
         serializer = self.get_serializer(data)
+        print(serializer.data)
+        return JsonResponse(custom_response(serializer.data))
+
+    def update(self, request, *args, **kwargs):
+        data = self.get_object()
+        serializer = self.get_serializer(data, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return JsonResponse(custom_response(serializer.data))
