@@ -40,3 +40,16 @@ class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return JsonResponse(custom_response(serializer.data))
+
+
+class ToDoTitleListView(generics.ListAPIView):
+    serializer_class = ToDoSerializer
+
+    def get_queryset(self):
+        queryset = ToDo.objects.all().values_list('title', flat=True)
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        titles = list(queryset)
+        return JsonResponse(custom_response(titles))
