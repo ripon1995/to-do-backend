@@ -70,3 +70,18 @@ class ToDoCompletedTitleListView(generics.ListAPIView):
         titles = list(queryset)
         titles = [{'id': item[0], 'title': item[1], 'completed': item[2]} for item in titles]
         return JsonResponse(custom_response(titles))
+
+
+class SpecificToDoListView(generics.ListAPIView):
+    def get_queryset(self):
+        specific_word = self.kwargs['specific_word']
+        todos_queryset = ToDo.objects.all().filter(title__icontains=specific_word)
+        queryset = todos_queryset.values_list('id', 'title', 'description')
+        print(queryset)
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        todos = list(queryset)
+        todos = [{'id': item[0], 'title': item[1], 'description': item[2]} for item in todos]
+        return JsonResponse(custom_response(todos))
