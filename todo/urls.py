@@ -1,6 +1,10 @@
 from django.urls import path
-from todo import views
+from .views import ToDoList, ToDoItem, ToDoTitleListView, ToDoCompletedTitleListView, SpecificToDoListView
 
 urlpatterns = [
-    path('todo/', views.to_do_list)
+    path('todo/', ToDoList.as_view()),
+    path('todo/<int:pk>/', ToDoItem.as_view()),
+    path('todo/titles/', ToDoTitleListView.as_view()),
+    path('todo/completed/', ToDoCompletedTitleListView.as_view()),
+    path('todo/item/<str:specific_word>/', SpecificToDoListView.as_view())
 ]
