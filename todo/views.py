@@ -43,11 +43,11 @@ class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ToDoTitleListView(generics.ListAPIView):
+    queryset = ToDo.objects.all()
     serializer_class = ToDoSerializer
 
     def get_queryset(self):
-        todos = ToDo.objects.all()
-        queryset = todos.values_list('id', 'title')
+        queryset = self.queryset.values_list('id', 'title')
         return queryset
 
     def list(self, request, *args, **kwargs):
