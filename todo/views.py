@@ -58,11 +58,11 @@ class ToDoTitleListView(generics.ListAPIView):
 
 
 class ToDoCompletedTitleListView(generics.ListAPIView):
+    queryset = ToDo.objects.all().filter(completed=True)
     serializer_class = ToDoSerializer
 
     def get_queryset(self):
-        completed_queryset = ToDo.objects.all().filter(completed=True)
-        queryset = completed_queryset.values_list('id', 'title', 'completed')
+        queryset = self.queryset.values_list('id', 'title', 'completed')
         return queryset
 
     def list(self, request, *args, **kwargs):
