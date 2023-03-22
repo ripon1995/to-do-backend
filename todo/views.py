@@ -1,6 +1,6 @@
 from rest_framework.parsers import JSONParser
 from rest_framework import generics
-from todo.custom_response import custom_response
+from utils.custom_response import custom_response
 from todo.models import ToDo
 from todo.serializers import ToDoSerializer
 from django.http import JsonResponse
@@ -85,3 +85,20 @@ class SpecificToDoListView(generics.ListAPIView):
         todos = list(queryset)
         todos = [{'id': item[0], 'title': item[1], 'description': item[2]} for item in todos]
         return JsonResponse(custom_response(todos))
+
+
+class ToDoListViewOfUser(generics.ListAPIView):
+    queryset = ToDo.objects.all()
+    serializer_class = ToDoSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs['userId']
+        user_todos = self.queryset.filter(user_id=user_id)
+        return user_todos
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        print("Queryset : ")
+        print(queryset)
+        serializer = ToDoSerializer(queryset, many=True)
+        return JsonResponse(custom_response(serializer.data))
