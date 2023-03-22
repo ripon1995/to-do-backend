@@ -73,11 +73,12 @@ class ToDoCompletedTitleListView(generics.ListAPIView):
 
 
 class SpecificToDoListView(generics.ListAPIView):
+    queryset = ToDo.objects.all()
+
     def get_queryset(self):
         specific_word = self.kwargs['specific_word']
-        todos_queryset = ToDo.objects.all().filter(title__icontains=specific_word)
-        queryset = todos_queryset.values_list('id', 'title', 'description')
-        print(queryset)
+        queryset = self.queryset.filter(title__icontains=specific_word)
+        queryset = queryset.values_list('id', 'title', 'description')
         return queryset
 
     def list(self, request, *args, **kwargs):
