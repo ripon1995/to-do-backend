@@ -4,7 +4,6 @@ from utils.custom_response import custom_response
 from todo.models import ToDo
 from todo.serializers import ToDoSerializer
 from django.http import JsonResponse
-from rest_framework.pagination import PageNumberPagination
 
 
 class ToDoList(generics.ListCreateAPIView):
