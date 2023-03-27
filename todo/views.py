@@ -1,6 +1,6 @@
 from rest_framework.parsers import JSONParser
 from rest_framework import generics
-from todo.custom_response import custom_response
+from utils.custom_response import custom_response
 from todo.models import ToDo
 from todo.serializers import ToDoSerializer
 from django.http import JsonResponse
@@ -8,6 +8,14 @@ from django.http import JsonResponse
 
 class ToDoList(generics.ListCreateAPIView):
     queryset = ToDo.objects.all()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user_id = self.request.query_params.get('userId')
+        if user_id:
+            queryset = queryset.filter(user_id=user_id)
+
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -43,11 +51,11 @@ class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ToDoTitleListView(generics.ListAPIView):
+    queryset = ToDo.objects.all()
     serializer_class = ToDoSerializer
 
     def get_queryset(self):
-        todos = ToDo.objects.all()
-        queryset = todos.values_list('id', 'title')
+        queryset = self.queryset.values_list('id', 'title')
         return queryset
 
     def list(self, request, *args, **kwargs):
@@ -58,11 +66,11 @@ class ToDoTitleListView(generics.ListAPIView):
 
 
 class ToDoCompletedTitleListView(generics.ListAPIView):
+    queryset = ToDo.objects.all().filter(completed=True)
     serializer_class = ToDoSerializer
 
     def get_queryset(self):
-        completed_queryset = ToDo.objects.all().filter(completed=True)
-        queryset = completed_queryset.values_list('id', 'title', 'completed')
+        queryset = self.queryset.values_list('id', 'title', 'completed')
         return queryset
 
     def list(self, request, *args, **kwargs):
@@ -73,11 +81,12 @@ class ToDoCompletedTitleListView(generics.ListAPIView):
 
 
 class SpecificToDoListView(generics.ListAPIView):
+    queryset = ToDo.objects.all()
+
     def get_queryset(self):
         specific_word = self.kwargs['specific_word']
-        todos_queryset = ToDo.objects.all().filter(title__icontains=specific_word)
-        queryset = todos_queryset.values_list('id', 'title', 'description')
-        print(queryset)
+        queryset = self.queryset.filter(title__icontains=specific_word)
+        queryset = queryset.values_list('id', 'title', 'description')
         return queryset
 
     def list(self, request, *args, **kwargs):
