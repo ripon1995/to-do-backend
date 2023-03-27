@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import ToDoList, ToDoItem, ToDoTitleListView, ToDoCompletedTitleListView, SpecificToDoListView, ToDoListViewOfUser
+from .views import ToDoList, ToDoItem, ToDoTitleListView, ToDoCompletedTitleListView, SpecificToDoListView, \
+    ToDoListViewOfUser
 
 urlpatterns = [
     path('todo/', ToDoList.as_view()),
@@ -7,5 +8,5 @@ urlpatterns = [
     path('todo/titles/', ToDoTitleListView.as_view()),
     path('todo/completed/', ToDoCompletedTitleListView.as_view()),
     path('todo/item/<str:specific_word>/', SpecificToDoListView.as_view()),
-    path('todo/<int:userId>/todos/', ToDoListViewOfUser.as_view())
+    path('user/<int:userId>/todos/', ToDoListViewOfUser.as_view())
 ]
