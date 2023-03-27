@@ -4,10 +4,19 @@ from utils.custom_response import custom_response
 from todo.models import ToDo
 from todo.serializers import ToDoSerializer
 from django.http import JsonResponse
+from rest_framework.pagination import PageNumberPagination
 
 
 class ToDoList(generics.ListCreateAPIView):
     queryset = ToDo.objects.all()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user_id = self.request.query_params.get('userId')
+        if user_id:
+            queryset = queryset.filter(user_id=user_id)
+
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -86,20 +95,3 @@ class SpecificToDoListView(generics.ListAPIView):
         todos = list(queryset)
         todos = [{'id': item[0], 'title': item[1], 'description': item[2]} for item in todos]
         return JsonResponse(custom_response(todos))
-
-
-class ToDoListViewOfUser(generics.ListAPIView):
-    queryset = ToDo.objects.all()
-    serializer_class = ToDoSerializer
-
-    def get_queryset(self):
-        user_id = self.kwargs['userId']
-        user_todos = self.queryset.filter(user_id=user_id)
-        return user_todos
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        print("Queryset : ")
-        print(queryset)
-        serializer = ToDoSerializer(queryset, many=True)
-        return JsonResponse(custom_response(serializer.data))
