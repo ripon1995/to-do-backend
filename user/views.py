@@ -1,6 +1,6 @@
 from rest_framework import generics
 
-from todo.custom_response import custom_response
+from utils.custom_response import custom_response
 from user.models import User
 from user.serializers import UserSerializer
 from rest_framework.parsers import JSONParser
@@ -20,3 +20,16 @@ class UserCreateView(generics.CreateAPIView):
             return JsonResponse(custom_response(serializer.data))
 
         return JsonResponse(custom_response(serializer.errors))
+
+
+class UserRetrieveView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        data = self.get_object()
+        serializer = self.get_serializer(data)
+        return JsonResponse(custom_response(serializer.data))
+
+
+
