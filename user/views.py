@@ -31,9 +31,10 @@ class UserRetrieveView(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         user = self.get_object()
-        user.username = request.data.get("username")
-        user.save()
-        serializer = self.get_serializer(user)
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        user.username = serializer.validated_data.get("username")
+        serializer.save()
         return Response(serializer.data)
 
 
@@ -43,7 +44,8 @@ class UserPasswordUpdateView(generics.UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         user = self.get_object()
-        user.password = request.data.get("password")
-        user.save()
-        serializer = self.get_serializer(user)
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        user.password = serializer.validated_data.get("password")
+        serializer.save()
         return Response(serializer.data)
