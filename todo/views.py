@@ -45,10 +45,11 @@ class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         data = self.get_object()
-        serializer = self.get_serializer(data, data=request.data)
+        serializer = self.get_serializer(data, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
+        data.title = serializer.validated_data.get("title")
         serializer.save()
-        return Response(custom_response(serializer.data))
+        return Response(serializer.data)
 
 
 class ToDoTitleListView(generics.ListAPIView):
