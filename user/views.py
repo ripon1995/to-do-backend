@@ -35,3 +35,15 @@ class UserRetrieveView(generics.RetrieveUpdateDestroyAPIView):
         user.save()
         serializer = self.get_serializer(user)
         return Response(serializer.data)
+
+
+class UserPasswordUpdateView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def update(self, request, *args, **kwargs):
+        user = self.get_object()
+        user.password = request.data.get("password")
+        user.save()
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
