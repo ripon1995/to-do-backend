@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.response import Response
 from user.models import User
 from user.serializers import UserSerializer
@@ -49,3 +49,11 @@ class UserPasswordUpdateView(generics.UpdateAPIView):
         user.password = serializer.validated_data.get("password")
         serializer.save()
         return Response(serializer.data)
+
+
+class Me(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user
