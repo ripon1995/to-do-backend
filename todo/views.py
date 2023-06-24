@@ -1,7 +1,5 @@
-
 from rest_framework.parsers import JSONParser
 from rest_framework import generics, permissions
-from utils.custom_response import custom_response
 from todo.models import ToDo
 from todo.serializers import ToDoSerializer
 from rest_framework.response import Response
@@ -21,16 +19,16 @@ class ToDoList(generics.ListCreateAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = ToDoSerializer(queryset, many=True)
-        return Response(custom_response(serializer.data))
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         data = JSONParser().parse(request)
         serializer = ToDoSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response(custom_response(serializer.data))
+            return Response(serializer.data)
 
-        return Response(custom_response(serializer.errors))
+        return Response(serializer.errors)
 
 
 class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
@@ -41,7 +39,7 @@ class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
         data = self.get_object()
         serializer = self.get_serializer(data)
         print(serializer.data)
-        return Response(custom_response(serializer.data))
+        return Response(serializer.data)
 
     def update(self, request, *args, **kwargs):
         data = self.get_object()
@@ -64,7 +62,7 @@ class ToDoTitleListView(generics.ListAPIView):
         queryset = self.get_queryset()
         titles = list(queryset)
         titles = [{'id': item[0], 'title': item[1]} for item in titles]
-        return Response(custom_response(titles))
+        return Response(titles)
 
 
 class ToDoCompletedTitleListView(generics.ListAPIView):
@@ -80,7 +78,7 @@ class ToDoCompletedTitleListView(generics.ListAPIView):
         queryset = self.get_queryset()
         titles = list(queryset)
         titles = [{'id': item[0], 'title': item[1], 'completed': item[2]} for item in titles]
-        return Response(custom_response(titles))
+        return Response(titles)
 
 
 class SpecificToDoListView(generics.ListAPIView):
@@ -96,4 +94,4 @@ class SpecificToDoListView(generics.ListAPIView):
         queryset = self.get_queryset()
         todos = list(queryset)
         todos = [{'id': item[0], 'title': item[1], 'description': item[2]} for item in todos]
-        return Response(custom_response(todos))
+        return Response(todos)
