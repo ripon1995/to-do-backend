@@ -52,7 +52,7 @@ class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.delete()
-        return Response(status=204, data="Deleted successfully")
+        return Response(status=204, data={"message": "success"})
 
 
 class ToDoTitleListView(generics.ListAPIView):
