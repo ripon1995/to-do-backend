@@ -1,7 +1,7 @@
 from rest_framework.parsers import JSONParser
 from rest_framework import generics, permissions
 from todo.models import ToDo
-from todo.serializers import ToDoSerializer
+from todo.serializers import ToDoSerializer, ToDoTitleSerializer
 from rest_framework.response import Response
 
 
@@ -59,33 +59,27 @@ class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
 
 class ToDoTitleListView(generics.ListAPIView):
     queryset = ToDo.objects.all()
-    serializer_class = ToDoSerializer
-
-    def get_queryset(self):
-        queryset = self.queryset.values_list('id', 'title')
-        return queryset
+    serializer_class = ToDoTitleSerializer
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        titles = list(queryset)
-        titles = [{'id': item[0], 'title': item[1]} for item in titles]
-        return Response(titles)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class ToDoCompletedTitleListView(generics.ListAPIView):
-    queryset = ToDo.objects.all().filter(completed=True)
-    serializer_class = ToDoSerializer
+    queryset = ToDo.objects.all()
+    serializer_class = ToDoTitleSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        queryset = self.queryset.values_list('id', 'title', 'completed')
+        queryset = self.queryset.filter(completed=True)
         return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        titles = list(queryset)
-        titles = [{'id': item[0], 'title': item[1], 'completed': item[2]} for item in titles]
-        return Response(titles)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class SpecificToDoListView(generics.ListAPIView):
