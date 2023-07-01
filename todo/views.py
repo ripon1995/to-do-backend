@@ -1,5 +1,5 @@
 from rest_framework.parsers import JSONParser
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, filters
 from todo.models import ToDo
 from todo.serializers import ToDoSerializer, ToDoTitleSerializer
 from rest_framework.response import Response
@@ -85,10 +85,12 @@ class ToDoCompletedTitleListView(generics.ListAPIView):
 class SpecificToDoListView(generics.ListAPIView):
     queryset = ToDo.objects.all()
     serializer_class = ToDoTitleSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'description']
 
     def get_queryset(self):
-        specific_word = self.kwargs['specific_word']
-        queryset = self.queryset.filter(title__icontains=specific_word)
+        queryset = self.queryset
+        queryset = self.filter_queryset(queryset)
         return queryset
 
     def list(self, request, *args, **kwargs):

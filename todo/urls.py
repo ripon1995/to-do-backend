@@ -6,5 +6,5 @@ urlpatterns = [
     path('todo/<int:pk>/', ToDoItem.as_view()),
     path('todo/titles/', ToDoTitleListView.as_view()),
     path('todo/completed/', ToDoCompletedTitleListView.as_view()),
-    path('todo/item/<str:specific_word>/', SpecificToDoListView.as_view()),
+    path('todo/search/', SpecificToDoListView.as_view()),
 ]
