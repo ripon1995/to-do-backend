@@ -71,9 +71,11 @@ class ToDoCompletedTitleListView(generics.ListAPIView):
     queryset = ToDo.objects.all()
     serializer_class = ToDoTitleSerializer
     permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'completed'
 
     def get_queryset(self):
-        queryset = self.queryset.filter(completed=True)
+        completed = self.kwargs.get('completed', True)
+        queryset = self.queryset.filter(completed=completed)
         return queryset
 
     def list(self, request, *args, **kwargs):
