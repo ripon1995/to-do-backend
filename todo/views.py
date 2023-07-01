@@ -84,15 +84,14 @@ class ToDoCompletedTitleListView(generics.ListAPIView):
 
 class SpecificToDoListView(generics.ListAPIView):
     queryset = ToDo.objects.all()
+    serializer_class = ToDoTitleSerializer
 
     def get_queryset(self):
         specific_word = self.kwargs['specific_word']
         queryset = self.queryset.filter(title__icontains=specific_word)
-        queryset = queryset.values_list('id', 'title', 'description')
         return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        todos = list(queryset)
-        todos = [{'id': item[0], 'title': item[1], 'description': item[2]} for item in todos]
-        return Response(todos)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
