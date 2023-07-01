@@ -10,10 +10,13 @@ class ToDoList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        queryset = self.filter_queryset(queryset)
+        return queryset
+
+    def filter_queryset(self, queryset):
         user_id = self.request.query_params.get('userId')
         if user_id:
-            queryset = queryset.filter(user_id=user_id)
-
+            queryset = queryset.filter(user__id=user_id)
         return queryset
 
     def list(self, request, *args, **kwargs):
