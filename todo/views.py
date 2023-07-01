@@ -48,7 +48,6 @@ class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
         data = self.get_object()
         serializer = self.get_serializer(data, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        data.title = serializer.validated_data.get("title")
         serializer.save()
         return Response(serializer.data)
 
