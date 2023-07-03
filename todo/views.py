@@ -2,7 +2,9 @@ from rest_framework.parsers import JSONParser
 from rest_framework import generics, permissions, filters
 from todo.models import ToDo
 from todo.serializers import ToDoSerializer, ToDoTitleSerializer
+from todo.filters import CustomSearchFilter
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class ToDoListCreateView(generics.ListCreateAPIView):
@@ -80,11 +82,11 @@ class ToDoCompletedTitleListView(generics.ListAPIView):
         return Response(serializer.data)
 
 
-class SpecificToDoListView(generics.ListAPIView):
+class ToDoListSearchFilterApi(generics.ListAPIView):
     queryset = ToDo.objects.all()
     serializer_class = ToDoTitleSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'description']
+    filter_backends = [CustomSearchFilter]
+    search_fields = ['title', 'description', 'id']
 
     def get_queryset(self):
         queryset = self.queryset
@@ -95,3 +97,10 @@ class SpecificToDoListView(generics.ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class ToDoFilterView(generics.ListAPIView):
+    queryset = ToDo.objects.all()
+    serializer_class = ToDoSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['title', 'description']

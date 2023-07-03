@@ -14,6 +14,7 @@ INSTALLED_APPS = [
     'todo',
     'user',
     'authentication',
+    'django_filters',
 ]
 
 REST_FRAMEWORK = {
