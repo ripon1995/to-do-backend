@@ -1,19 +1,24 @@
 from rest_framework.parsers import JSONParser
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, filters
 from todo.models import ToDo
-from todo.serializers import ToDoSerializer
+from todo.serializers import ToDoSerializer, ToDoTitleSerializer
+from todo.filters import CustomSearchFilter
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 
 
-class ToDoList(generics.ListCreateAPIView):
+class ToDoListCreateView(generics.ListCreateAPIView):
     queryset = ToDo.objects.all()
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        queryset = self.filter_queryset(queryset)
+        return queryset
+
+    def filter_queryset(self, queryset):
         user_id = self.request.query_params.get('userId')
         if user_id:
-            queryset = queryset.filter(user_id=user_id)
-
+            queryset = queryset.filter(user__id=user_id)
         return queryset
 
     def list(self, request, *args, **kwargs):
@@ -31,7 +36,7 @@ class ToDoList(generics.ListCreateAPIView):
         return Response(serializer.errors)
 
 
-class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
+class ToDoRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ToDo.objects.all()
     serializer_class = ToDoSerializer
 
@@ -45,7 +50,6 @@ class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
         data = self.get_object()
         serializer = self.get_serializer(data, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        data.title = serializer.validated_data.get("title")
         serializer.save()
         return Response(serializer.data)
 
@@ -57,46 +61,46 @@ class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
 
 class ToDoTitleListView(generics.ListAPIView):
     queryset = ToDo.objects.all()
-    serializer_class = ToDoSerializer
-
-    def get_queryset(self):
-        queryset = self.queryset.values_list('id', 'title')
-        return queryset
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        titles = list(queryset)
-        titles = [{'id': item[0], 'title': item[1]} for item in titles]
-        return Response(titles)
+    serializer_class = ToDoTitleSerializer
 
 
 class ToDoCompletedTitleListView(generics.ListAPIView):
-    queryset = ToDo.objects.all().filter(completed=True)
-    serializer_class = ToDoSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        queryset = self.queryset.values_list('id', 'title', 'completed')
-        return queryset
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        titles = list(queryset)
-        titles = [{'id': item[0], 'title': item[1], 'completed': item[2]} for item in titles]
-        return Response(titles)
-
-
-class SpecificToDoListView(generics.ListAPIView):
     queryset = ToDo.objects.all()
+    serializer_class = ToDoTitleSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'completed'
 
     def get_queryset(self):
-        specific_word = self.kwargs['specific_word']
-        queryset = self.queryset.filter(title__icontains=specific_word)
-        queryset = queryset.values_list('id', 'title', 'description')
+        user_id = self.request.user.id
+        completed = self.kwargs.get('completed', True)
+        queryset = self.queryset.filter(completed=completed, user_id=user_id)
         return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        todos = list(queryset)
-        todos = [{'id': item[0], 'title': item[1], 'description': item[2]} for item in todos]
-        return Response(todos)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ToDoListSearchFilterApi(generics.ListAPIView):
+    queryset = ToDo.objects.all()
+    serializer_class = ToDoTitleSerializer
+    filter_backends = [CustomSearchFilter]
+    search_fields = ['title', 'description', 'id']
+
+    def get_queryset(self):
+        queryset = self.queryset
+        queryset = self.filter_queryset(queryset)
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ToDoFilterView(generics.ListAPIView):
+    queryset = ToDo.objects.all()
+    serializer_class = ToDoSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['title', 'description']
