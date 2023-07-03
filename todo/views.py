@@ -5,7 +5,7 @@ from todo.serializers import ToDoSerializer, ToDoTitleSerializer
 from rest_framework.response import Response
 
 
-class ToDoList(generics.ListCreateAPIView):
+class ToDoListCreateView(generics.ListCreateAPIView):
     queryset = ToDo.objects.all()
 
     def get_queryset(self):
@@ -34,7 +34,7 @@ class ToDoList(generics.ListCreateAPIView):
         return Response(serializer.errors)
 
 
-class ToDoItem(generics.RetrieveUpdateDestroyAPIView):
+class ToDoRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ToDo.objects.all()
     serializer_class = ToDoSerializer
 
