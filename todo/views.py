@@ -74,8 +74,9 @@ class ToDoCompletedTitleListView(generics.ListAPIView):
     lookup_field = 'completed'
 
     def get_queryset(self):
+        user_id = self.request.user.id
         completed = self.kwargs.get('completed', True)
-        queryset = self.queryset.filter(completed=completed)
+        queryset = self.queryset.filter(completed=completed, user_id=user_id)
         return queryset
 
     def list(self, request, *args, **kwargs):
