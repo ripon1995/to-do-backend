@@ -1,7 +1,6 @@
 from django.db.models import F
 from .pagination import ToDoListPaginationClass
-from rest_framework.parsers import JSONParser
-from rest_framework import generics, permissions, filters
+from rest_framework import generics, permissions, status
 from todo.models import ToDo
 from todo.serializers import ToDoSerializer, ToDoTitleSerializer
 from todo.filters import CustomSearchFilter
@@ -9,39 +8,37 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 
+# if the user is logged in then to do can be created
+# also todo list can be fetched with query param
 class ToDoListCreateView(generics.ListCreateAPIView):
     pagination_class = ToDoListPaginationClass
-    queryset = ToDo.objects.all()
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = self.filter_queryset(queryset)
-        return queryset
-
-    def filter_queryset(self, queryset):
-        user_id = self.request.query_params.get('userId')
-        queryset = super().get_queryset()
-        if user_id:
-            queryset = queryset.filter(user_id=user_id)
-
-        queryset = queryset.order_by(F('createdDate').asc())
-        queryset = queryset.filter(user__id=user_id)
-        return queryset
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        serializer = ToDoSerializer(page, many=True)
-        return Response(serializer.data)
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['user_id']
+    serializer_class = ToDoSerializer
+    queryset = ToDo.objects.order_by(F('createdDate').asc())
 
     def create(self, request, *args, **kwargs):
-        data = JSONParser().parse(request)
-        serializer = ToDoSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+        user = self.request.user
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=user)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-        return Response(serializer.errors)
+
+# We will get todo list for logged in user
+class ToDoListViewForLoggedInUser(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = ToDoListPaginationClass
+    queryset = ToDo.objects.all()
+    serializer_class = ToDoSerializer
+
+    def get_queryset(self):
+        user_id = self.request.user.id
+        queryset = self.queryset.filter(user_id=user_id)
+        queryset = queryset.order_by(F('createdDate').asc())
+        return queryset
 
 
 class ToDoRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -95,16 +92,6 @@ class ToDoListSearchFilterApi(generics.ListAPIView):
     serializer_class = ToDoTitleSerializer
     filter_backends = [CustomSearchFilter]
     search_fields = ['title', 'description', 'id']
-
-    def get_queryset(self):
-        queryset = self.queryset
-        queryset = self.filter_queryset(queryset)
-        return queryset
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
 
 
 class ToDoFilterView(generics.ListAPIView):
