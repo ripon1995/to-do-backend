@@ -1,3 +1,5 @@
+from django.db.models import F
+from .pagination import ToDoListPaginationClass
 from rest_framework.parsers import JSONParser
 from rest_framework import generics, permissions, filters
 from todo.models import ToDo
@@ -8,6 +10,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 
 class ToDoListCreateView(generics.ListCreateAPIView):
+    pagination_class = ToDoListPaginationClass
     queryset = ToDo.objects.all()
 
     def get_queryset(self):
@@ -17,13 +20,18 @@ class ToDoListCreateView(generics.ListCreateAPIView):
 
     def filter_queryset(self, queryset):
         user_id = self.request.query_params.get('userId')
+        queryset = super().get_queryset()
         if user_id:
-            queryset = queryset.filter(user__id=user_id)
+            queryset = queryset.filter(user_id=user_id)
+
+        queryset = queryset.order_by(F('createdDate').asc())
+        queryset = queryset.filter(user__id=user_id)
         return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = ToDoSerializer(queryset, many=True)
+        page = self.paginate_queryset(queryset)
+        serializer = ToDoSerializer(page, many=True)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
