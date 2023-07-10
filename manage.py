@@ -2,10 +2,12 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import firebase_admin
 
 
 def main():
     """Run administrative tasks."""
+    firebase_admin.initialize_app()
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'todoapp.settings.dev')
     try:
         from django.core.management import execute_from_command_line
