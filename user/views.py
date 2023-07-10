@@ -20,7 +20,7 @@ class UserCreateView(generics.CreateAPIView):
         return Response(serializer.errors)
 
 
-class UserRetrieveView(generics.RetrieveUpdateDestroyAPIView):
+class UserRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -33,7 +33,6 @@ class UserRetrieveView(generics.RetrieveUpdateDestroyAPIView):
         user = self.get_object()
         serializer = self.get_serializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        user.username = serializer.validated_data.get("username")
         serializer.save()
         return Response(serializer.data)
 
