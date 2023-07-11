@@ -1,5 +1,8 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
+
+from notifications.push_notifications import send_push_notification
 from user.models import User
 from user.serializers import UserSerializer
 from rest_framework.parsers import JSONParser
@@ -56,3 +59,27 @@ class Me(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class SendPushNotificationToUser(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+
+    def get_object(self):
+        user_id = self.kwargs.get('user_id')
+        user = get_object_or_404(self.queryset, id=user_id)
+        return user
+
+    def retrieve(self, request, *args, **kwargs):
+        user = self.get_object()
+        print(user)
+        print(user.email)
+        print(user.username)
+        print(user.password)
+        print(user.device_token)
+        device_token = user.device_token
+        title = "New notification"
+        body = "New notification body"
+
+        send_push_notification(device_token, title, body)
+
+        return Response("Push Notification send to the user")
