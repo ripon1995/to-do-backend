@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-
 from notifications.push_notifications import send_push_notification
 from user.models import User
 from user.serializers import UserSerializer
@@ -77,4 +76,20 @@ class SendPushNotificationToUser(generics.RetrieveAPIView):
 
         send_push_notification(device_token, title, body)
 
-        return Response("Push Notification send to the user")
+        return Response("Push Notification sent to the user")
+
+
+class SendPushNotificationToMultipleUser(generics.ListAPIView):
+    queryset = User.objects.filter(device_token__isnull=False)
+    serializer_class = UserSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        title = request.data.get('title')
+        body = request.data.get('body')
+        for user in queryset:
+            device_token = user.device_token
+            send_push_notification(device_token, title, body)
+
+        serialized_users = self.serializer_class(queryset, many=True)
+        return Response(serialized_users.data, status=status.HTTP_200_OK)
