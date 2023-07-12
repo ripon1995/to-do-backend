@@ -71,14 +71,9 @@ class SendPushNotificationToUser(generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         user = self.get_object()
-        print(user)
-        print(user.email)
-        print(user.username)
-        print(user.password)
-        print(user.device_token)
         device_token = user.device_token
-        title = "New notification"
-        body = "New notification body"
+        title = request.data.get('title')
+        body = request.data.get('body')
 
         send_push_notification(device_token, title, body)
 
