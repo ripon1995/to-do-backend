@@ -81,16 +81,15 @@ class SendPushNotificationToUser(generics.RetrieveAPIView):
 
 class SendPushNotificationToMultipleUser(generics.ListAPIView):
     queryset = User.objects.filter(device_token__isnull=False)
+    serializer_class = UserSerializer
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         title = request.data.get('title')
         body = request.data.get('body')
-        users_with_device_token = []
         for user in queryset:
             device_token = user.device_token
             send_push_notification(device_token, title, body)
-            users_with_device_token.append(user)
 
-        serialized_users = UserSerializer(users_with_device_token, many=True)
+        serialized_users = self.serializer_class(queryset, many=True)
         return Response(serialized_users.data, status=status.HTTP_200_OK)
