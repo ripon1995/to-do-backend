@@ -1,13 +1,9 @@
-from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from .model.auth_fields import AuthFields
+from .model.device_fields import DeviceFields
+from .model.profile_fields import ProfileFields
 
 
-class User(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(unique=True, max_length=30)
-    email = models.EmailField(unique=True)
-    password = models.CharField(blank=False, max_length=30)
-    device_token = models.CharField(max_length=255, blank=True, null=True)
-    image_url = models.URLField(blank=True, null=True)
-
+class User(AbstractBaseUser, PermissionsMixin, AuthFields, DeviceFields, ProfileFields):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
