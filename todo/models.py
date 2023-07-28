@@ -6,6 +6,7 @@ STATUS_CHOICES = (
     ('New', 'New'),
     ('Active', 'Active'),
     ('Completed', 'Completed'),
+    ('Blocked', 'Blocked')
 )
 
 
