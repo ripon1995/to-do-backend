@@ -10,8 +10,7 @@ class LoginView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         username = request.data.get('username')
         password = request.data.get('password')
-
-        user = User.objects.filter(email=username, password=password).first()
+        user = User.objects.filter(email=username).first()
 
         if user is None:
             return Response(custom_response(user))
